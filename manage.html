@@ -26,7 +26,7 @@
     <h2>Add Product</h2>
     <input id="name" placeholder="Product Name" />
     <textarea id="description" placeholder="Product Description"></textarea>
-    <input type="file" id="imageFile" />
+    <input id="imageUrl" placeholder="Image URL (paste from imgbb or similar)" />
     <button onclick="addProduct()">Add Product</button>
 
     <h2>Products</h2>
@@ -36,7 +36,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDjkl_nnwPtKPJEWNCbx6DV350GXnjwtIw",
@@ -51,7 +50,6 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const storage = firebase.storage();
 
     function login() {
       const email = document.getElementById("email").value;
@@ -70,19 +68,14 @@
     function addProduct() {
       const name = document.getElementById("name").value;
       const description = document.getElementById("description").value;
-      const file = document.getElementById("imageFile").files[0];
+      const image = document.getElementById("imageUrl").value;
 
-      if (!file) {
-        alert("Select an image");
+      if (!image.startsWith("http")) {
+        alert("Please enter a valid image URL.");
         return;
       }
 
-      const ref = storage.ref('images/' + file.name);
-      ref.put(file).then(snapshot => {
-        snapshot.ref.getDownloadURL().then(url => {
-          db.collection("products").add({ name, description, image: url }).then(loadProducts);
-        });
-      });
+      db.collection("products").add({ name, description, image }).then(loadProducts);
     }
 
     function loadProducts() {
