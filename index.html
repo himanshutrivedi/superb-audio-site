@@ -5,52 +5,71 @@
   <title>Superb Audio Solutions</title>
   <style>
     body {
-      background-color: #0f0f0f;
+      background-color: #121212;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
-    }
-    header {
-      background: #1a1a1a;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    h1 {
-      font-size: 2rem;
-    }
-    .manage-link {
-      font-size: 0.8rem;
-      color: #999;
-      text-decoration: none;
-      opacity: 0.2;
-      transition: opacity 0.3s;
-    }
-    .manage-link:hover {
-      opacity: 1;
-    }
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
       padding: 2rem;
     }
-    .product {
-      background: #1c1c1c;
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 0 10px #000;
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
     }
-    .product img {
+    h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .tagline {
+      color: #aaa;
+      font-size: 1.1rem;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .product-card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .product-card img {
       max-width: 100%;
-      border-radius: 10px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .product-card h3 {
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
+    }
+    .product-card p {
+      color: #bbb;
+      font-size: 0.9rem;
+    }
+    .product-card .price {
+      color: #0f0;
+      font-weight: bold;
+      margin-top: 0.5rem;
     }
     footer {
-      background: #1a1a1a;
-      color: #888;
+      margin-top: 3rem;
       text-align: center;
-      padding: 1rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .manage-link {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.7rem;
+      color: #333;
+      text-decoration: none;
+    }
+    .manage-link:hover {
+      color: #777;
     }
   </style>
 </head>
@@ -58,47 +77,57 @@
 
 <header>
   <h1>Superb Audio Solutions</h1>
-  <a class="manage-link" href="manage.html" title="Admin access">Manage</a>
+  <p class="tagline">Experience clarity. Experience Superb.</p>
 </header>
 
-<main class="products" id="productList"></main>
+<div class="product-grid" id="productList">
+  <!-- Products will be loaded here -->
+</div>
 
 <footer>
-  📞 Contact: superb@audiosolutions.com | 📍 Location: Udaipur, RJ, IND
+  Contact us: superb.audio@example.com | Phone: +64 123 456 789
 </footer>
+
+<a href="manage.html" class="manage-link">Manage</a>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
   import {
-    getFirestore,
-    collection,
-    getDocs
+    getFirestore, collection, getDocs
   } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDjkl_nnwPtKPJEWNCbx6DV350GXnjwtIw",
     authDomain: "superb-audio.firebaseapp.com",
     projectId: "superb-audio",
+    storageBucket: "superb-audio.firebasestorage.app",
+    messagingSenderId: "766128832541",
+    appId: "1:766128832541:web:fe4357c6e0886233fb06f4",
+    measurementId: "G-BJFLER2FNK"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const productsCol = collection(db, "products");
 
-  const loadProducts = async () => {
-    const querySnapshot = await getDocs(collection(db, "products"));
+  async function loadProducts() {
+    const snapshot = await getDocs(productsCol);
     const productList = document.getElementById("productList");
-    querySnapshot.forEach((doc) => {
-      const product = doc.data();
-      const div = document.createElement("div");
-      div.className = "product";
-      div.innerHTML = `
-        <img src="${product.image}" alt="${product.name}">
-        <h3>${product.name}</h3>
-        <p>${product.description}</p>
+    productList.innerHTML = "";
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const productDiv = document.createElement("div");
+      productDiv.className = "product-card";
+      productDiv.innerHTML = `
+        <img src="${data.image}" alt="${data.name}">
+        <h3>${data.name}</h3>
+        <p>${data.description}</p>
+        <div class="price">Price: $${data.price}</div>
       `;
-      productList.appendChild(div);
+      productList.appendChild(productDiv);
     });
-  };
+  }
 
   loadProducts();
 </script>
