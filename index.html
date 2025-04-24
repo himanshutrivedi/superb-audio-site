@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Superb Audio Solutions</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
@@ -63,22 +65,39 @@
   <div class="product-list" id="productList"></div>
 
   <script>
+    
+const firebaseConfig = {
+  apiKey: "AIzaSyDjkl_nnwPtKPJEWNCbx6DV350GXnjwtIw",
+  authDomain: "superb-audio.firebaseapp.com",
+  projectId: "superb-audio",
+  storageBucket: "superb-audio.firebasestorage.app",
+  messagingSenderId: "766128832541",
+  appId: "1:766128832541:web:fe4357c6e0886233fb06f4",
+  measurementId: "G-BJFLER2FNK"
+};
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const productList = document.getElementById('productList');
-    const products = JSON.parse(localStorage.getItem('products')) || [];
 
     function renderProducts() {
-      productList.innerHTML = '';
-      products.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-          <img src="${product.image}" alt="${product.name}">
-          <h3>${product.name}</h3>
-          <p>${product.description}</p>
-        `;
-        productList.appendChild(card);
+      db.collection("products").get().then(snapshot => {
+        productList.innerHTML = '';
+        snapshot.forEach(doc => {
+          const product = doc.data();
+          const card = document.createElement('div');
+          card.className = 'product-card';
+          card.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+          `;
+          productList.appendChild(card);
+        });
       });
     }
+
     renderProducts();
   </script>
 </body>
