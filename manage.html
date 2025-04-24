@@ -64,6 +64,10 @@
 </head>
 <body>
 
+<nav style="text-align: center; margin-bottom: 1rem;">
+  <a href="index.html" style="color: #ccc; font-size: 0.9rem; text-decoration: none;">← Back to Home</a>
+</nav>
+
 <h1>Product Manager</h1>
 
 <form onsubmit="event.preventDefault(); addOrUpdateProduct();">
@@ -71,6 +75,7 @@
   <input type="text" id="productName" placeholder="Product Name">
   <textarea id="productDescription" placeholder="Product Description"></textarea>
   <input type="text" id="productImage" placeholder="Image URL">
+  <input type="number" id="productPrice" placeholder="Price (NZD)">
   <button type="submit">Save Product</button>
 </form>
 
@@ -109,11 +114,13 @@
         <h4>${data.name}</h4>
         <img src="${data.image}" alt="${data.name}">
         <p>${data.description}</p>
+        <p><strong>Price:</strong> $${data.price}</p>
         <button class="edit-btn" 
           data-id="${docSnap.id}" 
           data-name="${encodeURIComponent(data.name)}"
           data-description="${encodeURIComponent(data.description)}"
-          data-image="${encodeURIComponent(data.image)}">Edit</button>
+          data-image="${encodeURIComponent(data.image)}"
+          data-price="${data.price}">Edit</button>
         <button class="delete-btn" data-id="${docSnap.id}">Delete</button>
       `;
       productList.appendChild(productDiv);
@@ -125,6 +132,7 @@
         document.getElementById("productName").value = decodeURIComponent(btn.dataset.name);
         document.getElementById("productDescription").value = decodeURIComponent(btn.dataset.description);
         document.getElementById("productImage").value = decodeURIComponent(btn.dataset.image);
+        document.getElementById("productPrice").value = btn.dataset.price;
         window.scrollTo(0, 0);
       });
     });
@@ -144,13 +152,14 @@
     const name = document.getElementById("productName").value.trim();
     const description = document.getElementById("productDescription").value.trim();
     const image = document.getElementById("productImage").value.trim();
+    const price = parseFloat(document.getElementById("productPrice").value.trim());
 
-    if (!name || !description || !image) return alert("Please fill in all fields");
+    if (!name || !description || !image || isNaN(price)) return alert("Please fill in all fields");
 
     if (id) {
-      await updateDoc(doc(db, "products", id), { name, description, image });
+      await updateDoc(doc(db, "products", id), { name, description, image, price });
     } else {
-      await addDoc(productsCol, { name, description, image });
+      await addDoc(productsCol, { name, description, image, price });
     }
 
     resetForm();
@@ -162,6 +171,7 @@
     document.getElementById("productName").value = "";
     document.getElementById("productDescription").value = "";
     document.getElementById("productImage").value = "";
+    document.getElementById("productPrice").value = "";
   }
 
   loadProducts();
